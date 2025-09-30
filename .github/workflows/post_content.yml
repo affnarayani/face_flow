@@ -1,0 +1,62 @@
+name: Post Content Workflow
+
+on:
+  schedule:
+    # Runs at 9 AM and 9 PM IST (3:30 AM and 3:30 PM UTC)
+    - cron: '30 3,15 * * *'
+  workflow_dispatch:
+
+jobs:
+  post-content:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required for creating branches and PRs
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Create/Checkout feature branch
+      id: create_branch
+      run: |
+        BRANCH_NAME="feature/post-content-$(date +'%Y%m%d%H%M%S')"
+        git checkout -b $BRANCH_NAME || git checkout $BRANCH_NAME
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run post_content.py
+      env:
+        DECRYPT_KEY: ${{ secrets.DECRYPT_KEY }}
+        PAT_TOKEN: ${{ secrets.PAT_TOKEN }} # Using PAT_TOKEN as it might be needed for git operations or other API calls
+      run: python post_content.py
+
+    - name: Commit and Push changes
+      run: |
+        git add .
+        git commit -m "Automated content post and updates" || echo "No changes to commit"
+        git push origin ${{ steps.create_branch.outputs.BRANCH_NAME }}
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.PAT_TOKEN }}
+        commit-message: "Automated content post and updates"
+        title: "Automated Content Post"
+        body: "This pull request contains content posted automatically by the workflow."
+        branch: ${{ steps.create_branch.outputs.BRANCH_NAME }}
+        base: main # Assuming 'main' is your default branch
+        delete-branch: true # Delete the feature branch after PR merge
