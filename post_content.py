@@ -332,8 +332,9 @@ def select_page_from_menu(driver: webdriver.Chrome, page_name: str, timeout: int
     for xpath in candidate_xpaths:
         try:
             target_element = WebDriverWait(driver, timeout).until(
-                EC.presence_of_element_located((By.XPATH, xpath))
+                EC.visibility_of_element_located((By.XPATH, xpath))
             )
+            time.sleep(1) # Give the element a moment to become interactable
 
             try:
                 clickable = WebDriverWait(driver, 2).until(
@@ -349,12 +350,12 @@ def select_page_from_menu(driver: webdriver.Chrome, page_name: str, timeout: int
 
             try:
                 clickable.click()
-            except ElementClickInterceptedException:
+            except (ElementClickInterceptedException, ElementNotInteractableException):
                 driver.execute_script("arguments[0].click();", clickable)
 
             print(f"Selected menu item: {page_name}")
             return
-        except (TimeoutException, ElementClickInterceptedException, NoSuchElementException):
+        except (TimeoutException, ElementClickInterceptedException, ElementNotInteractableException, NoSuchElementException):
             continue
 
     raise TimeoutException(f"Unable to find menu item with text '{page_name}'.")
@@ -606,6 +607,7 @@ def main() -> None:
         dismiss_notification_popup(driver)
 
         open_profile_menu(driver)
+        time.sleep(2) # Give the menu a moment to fully render
         select_page_from_menu(driver, TARGET_PAGE_NAME)
 
         try:
