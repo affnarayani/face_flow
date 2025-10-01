@@ -14,6 +14,7 @@ import time
 from html import unescape
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+import sys
 
 from urllib.error import URLError
 from urllib.parse import urlparse
@@ -716,6 +717,14 @@ def main() -> None:
 
         print("Task completed.")
 
+    except ElementNotInteractableException as e:
+        if "element not interactable" in str(e):
+            print(f"An 'element not interactable' error occurred: {e}")
+            print("Exiting with error to fail GitHub workflow.")
+            sys.exit(1)
+        else:
+            print(f"An error occurred: {e}")
+            print("The browser will now close due to an error.")
     except Exception as e:
         print(f"An error occurred: {e}")
         print("The browser will now close due to an error.")
