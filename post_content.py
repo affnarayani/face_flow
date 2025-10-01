@@ -326,6 +326,7 @@ def select_page_from_menu(driver: webdriver.Chrome, page_name: str, timeout: int
         f'//span[normalize-space(text())="{page_name}"]',
         "/html/body/div[1]/div/div[1]/div/div[2]/div[5]/div[2]/div/div[3]/div[1]/div[1]/div/div/div/div/div/div/div/div/div/div[1]/div/div/div[1]/div[1]/div/div/div[1]/div/span/div/div/div/div/div[1]/div/div[2]/div/span",
         "/html/body/div[1]/div/div[1]/div/div[2]/div[5]/div[2]/div/div[3]/div[1]/div[1]/div/div/div/div/div/div/div/div/div/div[1]/div/div/div[1]/div[1]/div/div/a/div[1]/div[2]/span",
+        "/html/body/div[1]/div/div[1]/div/div[2]/div[5]/div[2]/div/div[2]/div[1]/div[1]/div/div/div/div/div/div/div/div/div/div[1]/div/div/div[1]/div[1]/div/div/div[1]/div/span/div/div/div/div/div[1]/div/div[2]/div/span",
     ]
 
     for xpath in candidate_xpaths:
